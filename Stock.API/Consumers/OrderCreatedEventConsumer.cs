@@ -1,14 +1,14 @@
 ﻿using MassTransit;
-using Microsoft.EntityFrameworkCore; // Veritabanı sorgusu için gerekli
+using Microsoft.EntityFrameworkCore; 
 using Shared.Events;
-using Stock.API.Models; // Modeller için gerekli
+using Stock.API.Models; 
 
 namespace Stock.API.Consumers
 {
     public class OrderCreatedEventConsumer : IConsumer<OrderCreatedEvent>
     {
         private readonly ILogger<OrderCreatedEventConsumer> _logger;
-        private readonly StockDbContext _context; // Veritabanı bağlantımız
+        private readonly StockDbContext _context; 
 
         public OrderCreatedEventConsumer(ILogger<OrderCreatedEventConsumer> logger, StockDbContext context)
         {
@@ -23,15 +23,15 @@ namespace Stock.API.Consumers
 
             foreach (var item in message.OrderItems)
             {
-                // 1. Veritabanında bu ürünü bul
+                // 1. find the product in the database
                 var stock = await _context.Stocks.FirstOrDefaultAsync(x => x.ProductId == item.ProductId);
 
                 if (stock != null)
                 {
-                    // 2. Stok yeterli mi kontrol et (Basit bir kontrol)
+                    // 2. Checking if the stock is enough
                     if (stock.Quantity >= item.Count)
                     {
-                        stock.Quantity -= item.Count; // Stoku düş
+                        stock.Quantity -= item.Count; 
                         _logger.LogInformation($"-- ProductId: {item.ProductId} updated. New Stock: {stock.Quantity}");
                     }
                     else
@@ -45,7 +45,7 @@ namespace Stock.API.Consumers
                 }
             }
 
-            // 3. Değişiklikleri kaydet
+            // 3. save the changes
             await _context.SaveChangesAsync();
             _logger.LogInformation("[Stock Service] Database updated successfully.");
         }
