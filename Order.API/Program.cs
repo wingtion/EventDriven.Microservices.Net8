@@ -25,7 +25,7 @@ builder.Services.AddMassTransit(config =>
         // Connection string to RabbitMQ running on Docker
         // Host: localhost (because Docker maps ports to localhost)
         // VirtualHost: "/" (Default)
-        cfg.Host("localhost", "/", h =>
+        cfg.Host(builder.Configuration["MassTransit:Host"] ?? "localhost", h =>
         {
             h.Username("guest"); // Default RabbitMQ user
             h.Password("guest"); // Default RabbitMQ password
@@ -44,7 +44,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

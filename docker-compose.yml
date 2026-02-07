@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # 1. RABBITMQ
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    container_name: microservice_rabbitmq
+
+  # 2. SQL SERVER
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=My_Strong_Password_123!
+    ports:
+      - "1433:1433"
+    container_name: microservice_mssql
+
+  # 3. ORDER API
+  order.api:
+    build:
+      context: .
+      dockerfile: Order.API/Dockerfile
+    ports:
+      - "5000:8080"
+      
+    restart: on-failure 
+    depends_on:
+      - rabbitmq
+      - mssql
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__OrderDbConnection=Server=mssql;Database=Microservice_OrderDb;User Id=sa;Password=My_Strong_Password_123!;TrustServerCertificate=True;
+      - MassTransit__Host=rabbitmq
+    container_name: microservice_order_api
+
+  # 4. STOCK API
+  stock.api:
+    build:
+      context: .
+      dockerfile: Stock.API/Dockerfile
+    ports:
+      - "5001:8080"
+    restart: on-failure
+    depends_on:
+      - rabbitmq
+      - mssql
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__StockDbConnection=Server=mssql;Database=Microservice_StockDb;User Id=sa;Password=My_Strong_Password_123!;TrustServerCertificate=True;
+      - MassTransit__Host=rabbitmq
+    container_name: microservice_stock_api

@@ -26,7 +26,7 @@ builder.Services.AddMassTransit(config =>
     config.UsingRabbitMq((context, cfg) =>
     {
         // RabbitMQ Connection
-        cfg.Host("localhost", "/", h =>
+        cfg.Host(builder.Configuration["MassTransit:Host"] ?? "localhost", h =>
         {
             h.Username("guest");
             h.Password("guest");
@@ -52,7 +52,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
