@@ -70,5 +70,3 @@ You don't need to install SQL Server or RabbitMQ manually. Just use Docker Compo
 2.  Send a `POST` request to `/api/Orders` with `productId: 10` and `count: 5`.
 3.  Check **Stock API logs** or Database. You will see the stock quantity decreased to **95** automatically!
 
-## License
-This project is licensed under the MIT License.
